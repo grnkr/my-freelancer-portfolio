@@ -1,0 +1,384 @@
+<!-- public/admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+        
+        body {
+            background-color: #f9fafb;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        header {
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            border-bottom: 2px solid #2563eb;
+            color: #2563eb;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .card-content {
+            margin-bottom: 1rem;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #2563eb;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-danger {
+            background-color: #ef4444;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+        }
+        
+        .stars {
+            color: #fbbf24;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-new {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .badge-replied {
+            background-color: #10b981;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Admin Dashboard</h1>
+            <p>Manage your contacts and testimonials</p>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="contacts">Contact Messages</div>
+            <div class="tab" data-tab="testimonials">Testimonials</div>
+            <div class="tab" data-tab="add-testimonial">Add Testimonial</div>
+        </div>
+        
+        <div id="contacts" class="tab-content active">
+            <div id="contacts-container">
+                Loading contacts...
+            </div>
+        </div>
+        
+        <div id="testimonials" class="tab-content">
+            <div id="testimonials-container">
+                Loading testimonials...
+            </div>
+        </div>
+        
+        <div id="add-testimonial" class="tab-content">
+            <div class="card">
+                <h2>Add New Testimonial</h2>
+                <form id="testimonial-form">
+                    <div class="form-group">
+                        <label for="name">Client Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="company">Company/Title</label>
+                        <input type="text" id="company" name="company" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rating">Rating (1-5)</label>
+                        <select id="rating" name="rating" required>
+                            <option value="5">5 - Excellent</option>
+                            <option value="4">4 - Very Good</option>
+                            <option value="3">3 - Good</option>
+                            <option value="2">2 - Fair</option>
+                            <option value="1">1 - Poor</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="comment">Testimonial</label>
+                        <textarea id="comment" name="comment" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="photoUrl">Photo URL (optional)</label>
+                        <input type="text" id="photoUrl" name="photoUrl">
+                    </div>
+                    
+                    <button type="submit" class="btn">Add Testimonial</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab functionality
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Hide all tab contents
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Deactivate all tabs
+                    tabs.forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Activate clicked tab
+                    this.classList.add('active');
+                    
+                    // Show corresponding content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Load contacts
+            fetchContacts();
+            
+            // Load testimonials
+            fetchTestimonials();
+            
+            // Testimonial form submission
+            const testimonialForm = document.getElementById('testimonial-form');
+            testimonialForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    name: document.getElementById('name').value,
+                    company: document.getElementById('company').value,
+                    rating: document.getElementById('rating').value,
+                    comment: document.getElementById('comment').value,
+                    photoUrl: document.getElementById('photoUrl').value
+                };
+                
+                fetch('/api/testimonials', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Testimonial added successfully!');
+                        testimonialForm.reset();
+                        fetchTestimonials();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while adding the testimonial');
+                });
+            });
+        });
+        
+        function fetchContacts() {
+            fetch('/api/contacts')
+                .then(response => response.json())
+                .then(contacts => {
+                    const contactsContainer = document.getElementById('contacts-container');
+                    
+                    if (contacts.length === 0) {
+                        contactsContainer.innerHTML = '<p>No contact messages found.</p>';
+                        return;
+                    }
+                    
+                    // Sort contacts by timestamp (newest first)
+                    contacts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    
+                    let html = '';
+                    contacts.forEach(contact => {
+                        const date = new Date(contact.timestamp).toLocaleDateString();
+                        const time = new Date(contact.timestamp).toLocaleTimeString();
+                        
+                        html += `
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>${contact.subject || 'No Subject'}</h3>
+                                    <span class="badge ${contact.status === 'new' ? 'badge-new' : 'badge-replied'}">
+                                        ${contact.status === 'new' ? 'New' : 'Replied'}
+                                    </span>
+                                </div>
+                                <div class="card-content">
+                                    <p>${contact.message}</p>
+                                </div>
+                                <div class="card-footer">
+                                    <div>
+                                        <strong>${contact.name}</strong> (${contact.email})
+                                    </div>
+                                    <div>${date} at ${time}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    contactsContainer.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error fetching contacts:', error);
+                    document.getElementById('contacts-container').innerHTML = 
+                        '<p>Error loading contacts. Please try again later.</p>';
+                });
+        }
+        
+        function fetchTestimonials() {
+            fetch('/api/testimonials')
+                .then(response => response.json())
+                .then(testimonials => {
+                    const testimonialsContainer = document.getElementById('testimonials-container');
+                    
+                    if (testimonials.length === 0) {
+                        testimonialsContainer.innerHTML = '<p>No testimonials found.</p>';
+                        return;
+                    }
+                    
+                    // Sort testimonials by timestamp (newest first)
+                    testimonials.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    
+                    let html = '';
+                    testimonials.forEach(testimonial => {
+                        const date = new Date(testimonial.timestamp).toLocaleDateString();
+                        let stars = '';
+                        for (let i = 0; i < testimonial.rating; i++) {
+                            stars += '<i class="fas fa-star"></i>';
+                        }
+                        
+                        html += `
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>${testimonial.name}</h3>
+                                    <div class="stars">${stars}</div>
+                                </div>
+                                <div class="card-content">
+                                    <p>${testimonial.comment}</p>
+                                </div>
+                                <div class="card-footer">
+                                    <div>${testimonial.company}</div>
+                                    <div>Added on ${date}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    testimonialsContainer.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error fetching testimonials:', error);
+                    document.getElementById('testimonials-container').innerHTML = 
+                        '<p>Error loading testimonials. Please try again later.</p>';
+                });
+        }
+    </script>
+</body>
+</html>
